@@ -60,15 +60,23 @@ class SortHTMLParser(HTMLParser):
     def get_tag_data_list(self):
         return self.sorted_tags
 
-test_data_file = "test-data.html"
-#content = load_url("http://job.2gis.ru/vacancy/nsk/")
+
+content = load_url("http://job.2gis.ru/vacancy/nsk/")
+
+#test_data_file = "test-data.html"
 #save_to_file(content, test_data_file)
-content = load_from_file(test_data_file)
+#content = load_from_file(test_data_file)
 
 parser = SortHTMLParser()
 parser.feed(content)
 sorted_tags = parser.get_tag_data_list()
 
-for key in sorted_tags.keys():
-    tag_data_list = sorted_tags[key]
-    print 'Tag count for "' + key + '": ' + str(len(tag_data_list))
+print "Tag info for links:"
+link_data_list = sorted_tags['a']
+for tag_data in link_data_list:
+    link_attributes = tag_data.tag_attributes
+    for attribute in link_attributes:
+        attribute_name = attribute[0]
+        if attribute_name == 'href':
+            attribute_value = attribute[1]
+            print "Found link: " + attribute_value
