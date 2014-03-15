@@ -1,34 +1,29 @@
 #!/usr/bin/env python
 __author__ = 'vasyanya'
 
-
-from bs4 import BeautifulSoup
-import re
 import url_model
+import city_category_extractor
 
 start_url = "http://job.2gis.ru/vacancy/nsk/"
-content = url_model.get_content(start_url, True)
+content = url_model.get_content(url=start_url, use_test_data=True)
+cities_data = city_category_extractor.extract(content)
 
-soup = BeautifulSoup(content)
+# for city_data in cities_data:
+#     print_text = "Link: " + city_data.link
+#     if not city_data.category is None:
+#         print_text += ", category: " + city_data.category
+#     if not city_data.text is None:
+#         print_text += ", text: " + city_data.text
+#
+#     print print_text
 
-all_links = soup.find_all('a')
-vacancy_link_regex_text = '/vacancy/(?P<city>\w+)/(?:category/#(?P<category>\w+))?'
-vacancy_link_regex = re.compile(vacancy_link_regex_text)
+named_cities = [cd for cd in cities_data if cd.category is None]
+categories = [cd for cd in cities_data if cd.category is not None]
 
-for link in all_links:
-    href = link.get('href')
-    if not 'vacancy' in href:
-        continue
-    m = vacancy_link_regex.match(href)
-    groups = m.groups()
-    city = groups[0]
-    category = groups[1]
+print "Other cities:"
+for city in named_cities:
+    print "Link: " + city.link + ", text: " + city.text
 
-    text = link.getText()
-    print_text = "City: " + city
-    if not category is None:
-        print_text += ", category: " + category
-
-    if len(text) > 0:
-        print_text += ", text: " + text
-    print print_text
+print "\nCurrent city categories:"
+for city in categories:
+    print "Category: " + city.category + ", text: " + city.text
